@@ -1,5 +1,5 @@
-;ManualLED backup.asm
-;Pomocí P1 plynule nastavujte barvu RGB LED (R-G-B-R) a pomocí P2 její jas
+;Uloha_26 backup.asm
+;Pomocï¿½ P1 plynule nastavujte barvu RGB LED (R-G-B-R) a pomocï¿½ P2 jejï¿½ jas
 ;Zaklad pro psani vlastnich programu
     list	p=16F1508
     #include    "p16f1508.inc"
@@ -100,7 +100,7 @@ Loop	;Hlavni smycka
 	
 	;Jas = Potenciometer 2 
 	call    ReadP2
-	call	setBrightness;Nastav Jas dle hodnoty prevP2_H u zapnutých LED
+	call	setBrightness;Nastav Jas dle hodnoty prevP2_H u zapnutï¿½ch LED
 	
 	goto    Loop
 
@@ -117,10 +117,10 @@ ReadP1
 	;10-bit binary result via successive approximation and stores the conversion result into the
 	;ADC result registers (ADRESH:ADRESL register pair).
 	movf    ADRESH,W
-	movwf	prevP1_H ;uloz horních 8 bit? do prevP1_H
+	movwf	prevP1_H ;uloz hornï¿½ch 8 bit? do prevP1_H
 	
 	movf	ADRESL,W
-	movwf	prevP1_L ;uloz spodní 2 bity do prevP1_L
+	movwf	prevP1_L ;uloz spodnï¿½ 2 bity do prevP1_L
 	
 	return
 ReadP2
@@ -156,7 +156,7 @@ SetRGB
 	movf	prevP1_H,W
 	movwf	temp
 	
-	; Rozd?lení hodnoty z potenciometru 1 na ctyri casti(256/4) = 64
+	; Rozd?lenï¿½ hodnoty z potenciometru 1 na ctyri casti(256/4) = 64
 	movlw	.64
 	movwf	range
    
@@ -206,15 +206,15 @@ Section2
 	subwf	range,W
 	
 	sublw	.84
-	movwf	temp2 ; Ulo?ení do?asné hodnoty
+	movwf	temp2 ; Ulo?enï¿½ do?asnï¿½ hodnoty
 
-	; Lineární zvý?ení hodnoty blue
+	; Lineï¿½rnï¿½ zvï¿½?enï¿½ hodnoty blue
 	movlw	.84
 	subwf	temp2,W
 	movwf	blue
 	movwf	PWM3DCH
 	
-	; Lineární sní?ení hodnoty green
+	; Lineï¿½rnï¿½ snï¿½?enï¿½ hodnoty green
 	movf	temp,W
 	sublw	.64
 	movwf	temp
@@ -234,7 +234,7 @@ Section3
 	bsf	LED2_ON,0
 	bcf	LED3_ON,0
 	bcf	LED1_ON,0
-	;Lineární zvyseni hodnoty red
+	;Lineï¿½rnï¿½ zvyseni hodnoty red
 	movf	temp,W
 	sublw	.85
 	subwf	range,W
@@ -243,7 +243,7 @@ Section3
 	movwf	red
 	movwf	PWM1DCH
 	
-	; Lineární snizeni hodnoty blue
+	; Lineï¿½rnï¿½ snizeni hodnoty blue
 	movf	temp,W
 	sublw	.64
 	movwf	temp
