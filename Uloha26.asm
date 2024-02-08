@@ -1,5 +1,5 @@
-;Uloha_26 backup.asm
-;Pomocï¿½ P1 plynule nastavujte barvu RGB LED (R-G-B-R) a pomocï¿½ P2 jejï¿½ jas
+;Uloha26.asm
+;Pomocí P1 plynule nastavujte barvu RGB LED (R-G-B-R) a pomocí P2 její jas
 ;Zaklad pro psani vlastnich programu
     list	p=16F1508
     #include    "p16f1508.inc"
@@ -20,13 +20,15 @@
 	temp
 	temp2
 	range
-	LED1_ON
-	LED2_ON
-	LED3_ON
+	Section1_ON
+	Section2_ON
+	Section3_ON
 	prevP1_H	
 	prevP1_L
 	prevP2_H
 	prevP2_L
+	counter
+	brightness
 	red
 	green
 	blue
@@ -100,7 +102,7 @@ Loop	;Hlavni smycka
 	
 	;Jas = Potenciometer 2 
 	call    ReadP2
-	call	setBrightness;Nastav Jas dle hodnoty prevP2_H u zapnutï¿½ch LED
+	call	setBrightness;Nastav Jas dle hodnoty prevP2_H u zapnutých LED
 	
 	goto    Loop
 
@@ -117,10 +119,10 @@ ReadP1
 	;10-bit binary result via successive approximation and stores the conversion result into the
 	;ADC result registers (ADRESH:ADRESL register pair).
 	movf    ADRESH,W
-	movwf	prevP1_H ;uloz hornï¿½ch 8 bit? do prevP1_H
+	movwf	prevP1_H ;uloz horních 8 bit? do prevP1_H
 	
 	movf	ADRESL,W
-	movwf	prevP1_L ;uloz spodnï¿½ 2 bity do prevP1_L
+	movwf	prevP1_L ;uloz spodní 2 bity do prevP1_L
 	
 	return
 ReadP2
@@ -156,7 +158,7 @@ SetRGB
 	movf	prevP1_H,W
 	movwf	temp
 	
-	; Rozd?lenï¿½ hodnoty z potenciometru 1 na ctyri casti(256/4) = 64
+	; Rozd?lení hodnoty z potenciometru 1 na ctyri casti(256/4) = 64
 	movlw	.64
 	movwf	range
    
@@ -176,11 +178,13 @@ SetRGB
 
 Section1
 	;Turn on / off LED var
-	bcf	LED2_ON,0
-	bsf	LED3_ON,0;blue vypnuto
-	bcf	LED1_ON,0
+	bcf	Section1_ON,0
+	bsf	Section2_ON,0
+	bsf	Section3_ON,0
 	
-	movf	temp,W
+	movf	prevP1_H,W ; Reset temp na p?vodní hodnotu
+	movwf	temp
+	
 	subwf	range,W
 	
 	movwf	red
@@ -199,22 +203,24 @@ Section1
 	
 Section2
 	;Turn on / off LED var
-	bcf	LED2_ON,0
-	bcf	LED3_ON,0
-	bsf	LED1_ON,0
-	movf	temp,W
+	bcf	Section2_ON,0
+	bsf	Section1_ON,0
+	bsf	Section3_ON,0
+	
+	movf	prevP1_H,W 
+	movwf	temp
 	subwf	range,W
 	
 	sublw	.84
-	movwf	temp2 ; Ulo?enï¿½ do?asnï¿½ hodnoty
+	movwf	temp2 ; Ulo?ení do?asné hodnoty
 
-	; Lineï¿½rnï¿½ zvï¿½?enï¿½ hodnoty blue
+	; Lineární zvý?ení hodnoty blue
 	movlw	.84
 	subwf	temp2,W
 	movwf	blue
 	movwf	PWM3DCH
 	
-	; Lineï¿½rnï¿½ snï¿½?enï¿½ hodnoty green
+	; Lineární sní?ení hodnoty green
 	movf	temp,W
 	sublw	.64
 	movwf	temp
@@ -231,11 +237,14 @@ Section2
 	return
 Section3
 	;Turn on / off LED var
-	bsf	LED2_ON,0
-	bcf	LED3_ON,0
-	bcf	LED1_ON,0
-	;Lineï¿½rnï¿½ zvyseni hodnoty red
-	movf	temp,W
+	bcf	Section3_ON,0
+	bsf	Section1_ON,0
+	bsf	Section2_ON,0
+	
+	;Lineární zvyseni hodnoty red
+	movf	prevP1_H,W 
+	movwf	temp
+	
 	sublw	.85
 	subwf	range,W
 	movlw	.190
@@ -243,14 +252,15 @@ Section3
 	movwf	red
 	movwf	PWM1DCH
 	
-	; Lineï¿½rnï¿½ snizeni hodnoty blue
+	; Lineární snizeni hodnoty blue
 	movf	temp,W
 	sublw	.64
 	movwf	temp
-	sublw	.128
+	sublw	.130
 	subwf	temp,W
 	movwf	blue
 	movwf	PWM3DCH
+	
 	;Green
 	clrf	green
 	clrf	PWM2DCH
@@ -261,22 +271,72 @@ setBrightness
 	movlb	.12 ;Banka 12 ss PWM
 	movf	prevP2_H,W ;Hornich 8 bit z P2
 	
-	btfss	LED3_ON,0;If LED3 is ON
-	movwf	PWM3DCH; Write to PWM3DCH
-	;incf	FSR0L, F ; Increment FSR0L
+	;Vypocet procentualní hodnoty Jasu
+	movlw	.100	;maximalni procentualni hodnota
+	movwf	counter
+	clrf	brightness
 	
-	;opakuj pro ostatni PWM
-	btfss	LED2_ON,0
-	movwf	PWM2DCH
-	;incf	FSR0L,F
+MultiplyLoop
+	addwf	brightness,F ;Pridame hodnotu potenciometru 2 k procentualni hodnote
+	decfsz	counter,F ;Dekrementujeme pocitadlo, skip if zero
+	goto	MultiplyLoop ;Pokud pocitadlo neni nula, opakujeme cyklus
 	
-	btfss	LED1_ON,0
-	movwf	PWM1DCH
-	;incf	FSR0L,F
+	;Zvysovani jasu dle sekce v ktere se nachazime
+	btfss	Section1_ON,0 ;Pokud je sepnuta nastav jas konrektnich barev
+	goto	Section1Br
+	
+	btfss	Section2_ON,0
+	goto	Section2Br
+	
+	btfss	Section3_ON,0
+	goto	Section3Br
 	return
 	
+Section1Br
+	 ; Check if LED2 is on
+	movf    green,W
+	btfsc   STATUS,Z    ;LED2 is off increase RED
+	goto	IncreaseRedBr
 	
+	; Green is on increase brightness
+	movf	prevP2_H,W
+	addwf	brightness
+	movwf	PWM2DCH
+	
+IncreaseRedBr
+	;Red is on decrease brightness
+	movf	prevP2_H,W
+	addwf	brightness
+	movwf	PWM1DCH
+	return
+	
+Section2Br
+	; Check if LED3 is on
+	movf	blue,W
+	btfsc	STATUS,Z
+	goto	IncreaseGreenB
+	
+	movf	prevP2_H,W
+	addwf	brightness
+	movwf	PWM3DCH
+	
+IncreaseGreenB
+	movf	prevP2_H,W
+	addwf	brightness
+	movwf	PWM2DCH
+	return
+	
+Section3Br
+	;Check if LED3 is on
+	movf	blue,W
+	btfsc	STATUS,Z
+	goto	IncreaseRedBr
+	
+	movf	prevP2_H,W
+	subwf	brightness
+	addwf	PWM3DCH
+	
+	return
    #include	"Config_IOs.inc"
 		
 	END
-

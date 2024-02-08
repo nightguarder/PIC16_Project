@@ -14,12 +14,10 @@
     <logicalFolder name="SourceFiles"
                    displayName="Source Files"
                    projectFiles="true">
+      <itemPath>Displej.asm</itemPath>
       <itemPath>Zaklad.asm</itemPath>
-      <itemPath>LEDControl.asm</itemPath>
-      <itemPath>RGBControl.asm</itemPath>
-      <itemPath>PWMControl.asm</itemPath>
-      <itemPath>RedtoRed.asm</itemPath>
-      <itemPath>Zaklad3.asm</itemPath>
+      <itemPath>HSVtoRGB.asm</itemPath>
+      <itemPath>Uloha26.asm</itemPath>
       <itemPath>Zaklad4.asm</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
@@ -72,7 +70,15 @@
         <makeCustomizationEnableLongLines>false</makeCustomizationEnableLongLines>
         <makeCustomizationNormalizeHexFile>false</makeCustomizationNormalizeHexFile>
       </makeCustomizationType>
-      <item path="LEDControl.asm" ex="true" overriding="false">
+      <item path="Displej.asm" ex="true" overriding="false">
+        <MPASMWIN-AS>
+        </MPASMWIN-AS>
+        <MPASMWIN-LD>
+        </MPASMWIN-LD>
+        <mpasmsuite>
+        </mpasmsuite>
+      </item>
+      <item path="HSVtoRGB.asm" ex="true" overriding="false">
         <MPASMWIN-AS>
         </MPASMWIN-AS>
         <MPASMWIN-LD>
@@ -120,29 +126,7 @@
         <property key="programoptions.usehighvoltageonmclr" value="false"/>
         <property key="programoptions.uselvpprogramming" value="true"/>
       </PKOBSKDEPlatformTool>
-      <item path="PWMControl.asm" ex="true" overriding="false">
-        <MPASMWIN-AS>
-        </MPASMWIN-AS>
-        <MPASMWIN-LD>
-        </MPASMWIN-LD>
-        <mpasmsuite>
-        </mpasmsuite>
-      </item>
-      <item path="RGBControl.asm" ex="true" overriding="false">
-        <MPASMWIN-AS>
-        </MPASMWIN-AS>
-        <MPASMWIN-LD>
-        </MPASMWIN-LD>
-        <mpasmsuite>
-        </mpasmsuite>
-      </item>
-      <item path="RedtoRed.asm" ex="true" overriding="false">
-        <MPASMWIN-AS>
-        </MPASMWIN-AS>
-        <MPASMWIN-LD>
-        </MPASMWIN-LD>
-        <mpasmsuite>
-        </mpasmsuite>
+      <item path="Uloha26.asm" ex="true" overriding="false">
       </item>
       <item path="Zaklad.asm" ex="true" overriding="false">
         <MPASMWIN-AS>
@@ -151,8 +135,6 @@
         </MPASMWIN-LD>
         <mpasmsuite>
         </mpasmsuite>
-      </item>
-      <item path="Zaklad3.asm" ex="true" overriding="false">
       </item>
       <mpasmsuite>
         <property key="absolute-mode" value="false"/>

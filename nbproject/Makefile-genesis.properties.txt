@@ -1,8 +1,8 @@
 #
-#Thu Feb 08 20:53:14 CET 2024
+#Thu Jan 25 16:39:36 CET 2024
 default.Pack.dfplocation=/opt/microchip/mplabx/v5.35/packs/Microchip/PIC12-16F1xxx_DFP/1.2.63
 default.languagetoolchain.dir=/opt/microchip/mplabx/v5.35/mpasmx
-configurations-xml=3ffadd18d3cdfcfd10bb10b8b20e1651
+configurations-xml=25721a2adeb468d50a3f35e05deade4c
 com-microchip-mplab-nbide-embedded-makeproject-MakeProject.md5=5db0f4d6bbe0ec2a1f1096ccfb9d7ad3
 default.languagetoolchain.version=5.87
 host.platform=linux

@@ -3,14 +3,10 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/home/cyrils/MPLABXProjects/PIC_Proj3.X/PWMControl.asm</file>
-            <file>file:/home/cyrils/MPLABXProjects/PIC_Proj3.X/RedtoRed.asm</file>
-            <file>file:/home/cyrils/MPLABXProjects/PIC_Proj3.X/Config_IOs.inc</file>
-            <file>file:/home/cyrils/MPLABXProjects/PIC_Proj3.X/Zaklad3.asm</file>
             <file>file:/home/cyrils/MPLABXProjects/PIC_Proj3.X/Zaklad4.asm</file>
-            <file>file:/home/cyrils/MPLABXProjects/PIC_Proj3.X/RGBControl.asm</file>
+            <file>file:/home/cyrils/MPLABXProjects/PIC_Proj3.X/HSVtoRGB.asm</file>
+            <file>file:/home/cyrils/MPLABXProjects/PIC_Proj3.X/Uloha26.asm</file>
             <file>file:/home/cyrils/MPLABXProjects/PIC_Proj3.X/Zaklad.asm</file>
-            <file>file:/home/cyrils/MPLABXProjects/PIC_Proj3.X/LEDControl.asm</file>
         </group>
     </open-files>
 </project-private>

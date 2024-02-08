@@ -1,12 +1,12 @@
 MPLINK 5.09, LINKER
-Linker Map File - Created Wed Feb  7 17:21:18 2024
+Linker Map File - Created Thu Feb  8 21:05:09 2024
 
                                  Section Info
                   Section       Type    Address   Location Size(Bytes)
                 ---------  ---------  ---------  ---------  ---------
                    .org_0       code   0x000000    program   0x000002
                    .cinit    romdata   0x000001    program   0x000004
-                   .org_1       code   0x000004    program   0x000156
+                   .org_1       code   0x000004    program   0x00019e
 .config_8007_BUILD/DEFAULT/PRODUCTION/ZAKLAD4       code   0x008007    program   0x000002
 .config_8008_BUILD/DEFAULT/PRODUCTION/ZAKLAD4       code   0x008008    program   0x000002
 
@@ -16,28 +16,34 @@ Linker Map File - Created Wed Feb  7 17:21:18 2024
                                Start         End      
                            ---------   ---------      
                             0x000000    0x000002      
-                            0x000004    0x0000ae      
+                            0x000004    0x0000d2      
                             0x008007    0x008008      
-            176 out of 4103 program addresses used, program memory utilization is 4%
+            212 out of 4103 program addresses used, program memory utilization is 5%
 
 
 
                               Symbols - Sorted by Name
                      Name    Address   Location    Storage File                     
                 ---------  ---------  ---------  --------- ---------                
-               Config_IOs   0x00009c    program     static /home/cyrils/MPLABXProjects/PIC_Proj3.X/Config_IOs.inc
+               Config_IOs   0x0000c0    program     static /home/cyrils/MPLABXProjects/PIC_Proj3.X/Config_IOs.inc
+           IncreaseGreenB   0x0000b5    program     static /home/cyrils/MPLABXProjects/PIC_Proj3.X/Zaklad4.asm
+            IncreaseRedBr   0x0000ab    program     static /home/cyrils/MPLABXProjects/PIC_Proj3.X/Zaklad4.asm
                      Loop   0x000029    program     static /home/cyrils/MPLABXProjects/PIC_Proj3.X/Zaklad4.asm
                  MapToRGB   0x000044    program     static /home/cyrils/MPLABXProjects/PIC_Proj3.X/Zaklad4.asm
+             MultiplyLoop   0x00009b    program     static /home/cyrils/MPLABXProjects/PIC_Proj3.X/Zaklad4.asm
                    ReadP1   0x00002e    program     static /home/cyrils/MPLABXProjects/PIC_Proj3.X/Zaklad4.asm
                    ReadP2   0x000039    program     static /home/cyrils/MPLABXProjects/PIC_Proj3.X/Zaklad4.asm
                  Section1   0x00005a    program     static /home/cyrils/MPLABXProjects/PIC_Proj3.X/Zaklad4.asm
-                 Section2   0x000068    program     static /home/cyrils/MPLABXProjects/PIC_Proj3.X/Zaklad4.asm
-                 Section3   0x00007e    program     static /home/cyrils/MPLABXProjects/PIC_Proj3.X/Zaklad4.asm
+               Section1Br   0x0000a5    program     static /home/cyrils/MPLABXProjects/PIC_Proj3.X/Zaklad4.asm
+                 Section2   0x000069    program     static /home/cyrils/MPLABXProjects/PIC_Proj3.X/Zaklad4.asm
+               Section2Br   0x0000af    program     static /home/cyrils/MPLABXProjects/PIC_Proj3.X/Zaklad4.asm
+                 Section3   0x000080    program     static /home/cyrils/MPLABXProjects/PIC_Proj3.X/Zaklad4.asm
+               Section3Br   0x0000b9    program     static /home/cyrils/MPLABXProjects/PIC_Proj3.X/Zaklad4.asm
                    SetRGB   0x00004c    program     static /home/cyrils/MPLABXProjects/PIC_Proj3.X/Zaklad4.asm
                     Start   0x000006    program     static /home/cyrils/MPLABXProjects/PIC_Proj3.X/Zaklad4.asm
              _.org_1_0033   0x000033    program     static /home/cyrils/MPLABXProjects/PIC_Proj3.X/Zaklad4.asm
              _.org_1_003E   0x00003e    program     static /home/cyrils/MPLABXProjects/PIC_Proj3.X/Zaklad4.asm
-            setBrightness   0x000093    program     static /home/cyrils/MPLABXProjects/PIC_Proj3.X/Zaklad4.asm
+            setBrightness   0x000096    program     static /home/cyrils/MPLABXProjects/PIC_Proj3.X/Zaklad4.asm
 
 
 
@@ -53,9 +59,15 @@ Linker Map File - Created Wed Feb  7 17:21:18 2024
                  MapToRGB   0x000044    program     static /home/cyrils/MPLABXProjects/PIC_Proj3.X/Zaklad4.asm
                    SetRGB   0x00004c    program     static /home/cyrils/MPLABXProjects/PIC_Proj3.X/Zaklad4.asm
                  Section1   0x00005a    program     static /home/cyrils/MPLABXProjects/PIC_Proj3.X/Zaklad4.asm
-                 Section2   0x000068    program     static /home/cyrils/MPLABXProjects/PIC_Proj3.X/Zaklad4.asm
-                 Section3   0x00007e    program     static /home/cyrils/MPLABXProjects/PIC_Proj3.X/Zaklad4.asm
-            setBrightness   0x000093    program     static /home/cyrils/MPLABXProjects/PIC_Proj3.X/Zaklad4.asm
-               Config_IOs   0x00009c    program     static /home/cyrils/MPLABXProjects/PIC_Proj3.X/Config_IOs.inc
+                 Section2   0x000069    program     static /home/cyrils/MPLABXProjects/PIC_Proj3.X/Zaklad4.asm
+                 Section3   0x000080    program     static /home/cyrils/MPLABXProjects/PIC_Proj3.X/Zaklad4.asm
+            setBrightness   0x000096    program     static /home/cyrils/MPLABXProjects/PIC_Proj3.X/Zaklad4.asm
+             MultiplyLoop   0x00009b    program     static /home/cyrils/MPLABXProjects/PIC_Proj3.X/Zaklad4.asm
+               Section1Br   0x0000a5    program     static /home/cyrils/MPLABXProjects/PIC_Proj3.X/Zaklad4.asm
+            IncreaseRedBr   0x0000ab    program     static /home/cyrils/MPLABXProjects/PIC_Proj3.X/Zaklad4.asm
+               Section2Br   0x0000af    program     static /home/cyrils/MPLABXProjects/PIC_Proj3.X/Zaklad4.asm
+           IncreaseGreenB   0x0000b5    program     static /home/cyrils/MPLABXProjects/PIC_Proj3.X/Zaklad4.asm
+               Section3Br   0x0000b9    program     static /home/cyrils/MPLABXProjects/PIC_Proj3.X/Zaklad4.asm
+               Config_IOs   0x0000c0    program     static /home/cyrils/MPLABXProjects/PIC_Proj3.X/Config_IOs.inc
 
 

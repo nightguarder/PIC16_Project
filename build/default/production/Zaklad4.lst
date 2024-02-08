@@ -1,10 +1,10 @@
-MPASM 5.87  /HOME/CYRILS/MPLABXPROJECTS/PIC_   2-7-2024  18:21:18         PAGE  1
+MPASM 5.87  /HOME/CYRILS/MPLABXPROJECTS/PIC_   2-8-2024  22:05:09         PAGE  1
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
   VALUE
 
-                      00001 ;ManualLED backup.asm
+                      00001 ;Uloha26.asm
                       00002 ;Pomocí P1 plynule nastavujte barvu RGB LED (R-G-B-R) a pomocí P2 její jas
                       00003 ;Zaklad pro psani vlastnich programu
                       00004     list        p=16F1508
@@ -37,370 +37,451 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
   00000070            00020         temp
   00000071            00021         temp2
   00000072            00022         range
-  00000073            00023         LED1_ON
-  00000074            00024         LED2_ON
-  00000075            00025         LED3_ON
+  00000073            00023         Section1_ON
+  00000074            00024         Section2_ON
+  00000075            00025         Section3_ON
   00000076            00026         prevP1_H        
   00000077            00027         prevP1_L
   00000078            00028         prevP2_H
   00000079            00029         prevP2_L
-  0000007A            00030         red
-  0000007B            00031         green
-  0000007C            00032         blue
-                      00033         
-                      00034         
-                      00035     ENDC
-                      00036     
-                      00037 ;**********************************************************************
-                      00038         ORG     0x00
-0000   2???           00039         goto    Start
-                      00040         
-                      00041         ORG     0x04
-0004   0000           00042         nop                     ;pripraveno pro obsluhu preruseni
-MPASM 5.87  /HOME/CYRILS/MPLABXPROJECTS/PIC_   2-7-2024  18:21:18         PAGE  2
+  0000007A            00030         counter
+  0000007B            00031         brightness
+  0000007C            00032         red
+  0000007D            00033         green
+  0000007E            00034         blue
+                      00035         
+                      00036         
+                      00037     ENDC
+                      00038     
+                      00039 ;**********************************************************************
+                      00040         ORG     0x00
+0000   2???           00041         goto    Start
+                      00042         
+MPASM 5.87  /HOME/CYRILS/MPLABXPROJECTS/PIC_   2-8-2024  22:05:09         PAGE  2
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
   VALUE
 
-0005   0009           00043         retfie
-                      00044         
-0006                  00045 Start   
-0006   0021           00046         movlb   .1              ;Bank1
-0007   3068           00047         movlw   b'01101000'     ;4MHz Medium
+                      00043         ORG     0x04
+0004   0000           00044         nop                     ;pripraveno pro obsluhu preruseni
+0005   0009           00045         retfie
+                      00046         
+0006                  00047 Start   
+0006   0021           00048         movlb   .1              ;Bank1
+0007   3068           00049         movlw   b'01101000'     ;4MHz Medium
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-0008   0099           00048         movwf   OSCCON          ;nastaveni hodin
-                      00049 
-0009   2???           00050         call    Config_IOs      ;vola nastaveni pinu
-                      00051         
-                      00052         
-                      00053         ;config AD Prevodniku
-000A   0021           00054         movlb .1
-000B   3028           00055         movlw   b'00101000'     ;P2 = AN10
+0008   0099           00050         movwf   OSCCON          ;nastaveni hodin
+                      00051 
+0009   2???           00052         call    Config_IOs      ;vola nastaveni pinu
+                      00053         
+                      00054         
+                      00055         ;config AD Prevodniku
+000A   0021           00056         movlb .1
+000B   3028           00057         movlw   b'00101000'     ;P2 = AN10
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-000C   009D           00056         movwf   ADCON0
-000D   3070           00057         movlw   b'01110000'     ;leftAlig, FRC, VDD
+000C   009D           00058         movwf   ADCON0
+000D   3070           00059         movlw   b'01110000'     ;leftAlig, FRC, VDD
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-000E   009E           00058         movwf   ADCON1
+000E   009E           00060         movwf   ADCON1
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-000F   019F           00059         clrf    ADCON2          ;single conv.
+000F   019F           00061         clrf    ADCON2          ;single conv.
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-0010   141D           00060         bsf     ADCON0,ADON     ;zapnout ADC
-                      00061         
-                      00062         ;config TMR2
-0011   0020           00063         movlb   .0              ;Banka0 s TMR2
-0012   019C           00064         clrf    T2CON           ;1:1 pre, 1:1 post prescalor
-0013   019A           00065         clrf    TMR2            ;vynulovat citac na 0 postscalor
-0014   30FF           00066         movlw   0xFF            ;(4000000/4)/256 = 3906.25 Hz   pro oko neviditelne
-0015   009B           00067         movwf   PR2             ;nastavit na max. hodnotu
-0016   151C           00068         bsf     T2CON,TMR2ON    ;po nastaveni vseho zapnout TMR2
-                      00069         
-                      00070         ;config PWM3! ne PWM1
-0017   002C           00071         movlb   .12             ;PWM moduly v Bance 12
+0010   141D           00062         bsf     ADCON0,ADON     ;zapnout ADC
+                      00063         
+                      00064         ;config TMR2
+0011   0020           00065         movlb   .0              ;Banka0 s TMR2
+0012   019C           00066         clrf    T2CON           ;1:1 pre, 1:1 post prescalor
+0013   019A           00067         clrf    TMR2            ;vynulovat citac na 0 postscalor
+0014   30FF           00068         movlw   0xFF            ;(4000000/4)/256 = 3906.25 Hz   pro oko neviditelne
+0015   009B           00069         movwf   PR2             ;nastavit na max. hodnotu
+0016   151C           00070         bsf     T2CON,TMR2ON    ;po nastaveni vseho zapnout TMR2
+                      00071         
+                      00072         ;config PWM3! ne PWM1
+0017   002C           00073         movlb   .12             ;PWM moduly v Bance 12
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-0018   0198           00072         clrf    PWM3DCH
+0018   0198           00074         clrf    PWM3DCH
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-0019   0197           00073         clrf    PWM3DCL
+0019   0197           00075         clrf    PWM3DCL
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-001A   1719           00074         bsf     PWM3CON,PWM3OE  ;povolit vystup signalu na pin (Output enable)
+001A   1719           00076         bsf     PWM3CON,PWM3OE  ;povolit vystup signalu na pin (Output enable)
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-001B   1799           00075         bsf     PWM3CON,PWM3EN  ;spustit PWM3
-                      00076         ;config PWM1
+001B   1799           00077         bsf     PWM3CON,PWM3EN  ;spustit PWM3
+                      00078         ;config PWM1
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-001C   0192           00077         clrf    PWM1DCH
+001C   0192           00079         clrf    PWM1DCH
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-001D   0191           00078         clrf    PWM1DCL
+001D   0191           00080         clrf    PWM1DCL
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-001E   1713           00079         bsf     PWM1CON,PWM1OE  ;povolit vystup signalu na pin (Output enable)
+001E   1713           00081         bsf     PWM1CON,PWM1OE  ;povolit vystup signalu na pin (Output enable)
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-001F   1793           00080         bsf     PWM1CON,PWM1EN  ;spustit PWM1
-                      00081         ;config PWM2
-Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-MPASM 5.87  /HOME/CYRILS/MPLABXPROJECTS/PIC_   2-7-2024  18:21:18         PAGE  3
+001F   1793           00082         bsf     PWM1CON,PWM1EN  ;spustit PWM1
+MPASM 5.87  /HOME/CYRILS/MPLABXPROJECTS/PIC_   2-8-2024  22:05:09         PAGE  3
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
   VALUE
 
-0020   0195           00082         clrf    PWM2DCH
+                      00083         ;config PWM2
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-0021   0194           00083         clrf    PWM2DCL
+0020   0195           00084         clrf    PWM2DCH
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-0022   1716           00084         bsf     PWM2CON,PWM2OE  ;povolit vystup signalu na pin (Output enable)
+0021   0194           00085         clrf    PWM2DCL
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-0023   1796           00085         bsf     PWM2CON,PWM2EN  ;spustit PWM1
-                      00086         
-                      00087         ;neprime adresovani
-0024   3006           00088         movlw   0x06       ; Adresa PWM3DH = 0x0612
-0025   0085           00089         movwf   FSR0H      
-0026   3018           00090         movlw   0x18
-0027   0084           00091         movwf   FSR0L      ; Control PWM3DCH ;ovlada vykon a svit
-0028   0020           00092         movlb   .0              ;Banka0 s PORT
-                      00093                         
-0029                  00094 Loop    ;Hlavni smycka 
-                      00095         ;Read P1 and P2 
-                      00096         ;Barva = Potenciometer 1
-0029   2???           00097         call    ReadP1  ;PRecte Potenciometr 1 a vysledek ulozi do prevP1_H a prevP1_L
-                      00098         ;call   MapToRGB ;Preved 10-bit vysledek ADC na 8-bit.
-002A   2???           00099         call    SetRGB  ;Nastav barvu dle rozsahu Potenciometru
-                      00100         
-                      00101         ;Jas = Potenciometer 2 
-002B   2???           00102         call    ReadP2
-002C   2???           00103         call    setBrightness;Nastav Jas dle hodnoty prevP2_H u zapnutých LED
-                      00104         
-002D   2???           00105         goto    Loop
-                      00106 
-002E                  00107 ReadP1
-                      00108         ;start ADC prevodniku
-                      00109         
-002E   0021           00110         movlb   .1              ;Banka1 s ADC
-002F   3019           00111         movlw   b'00011001'     ;P1 = AN6
+0022   1716           00086         bsf     PWM2CON,PWM2OE  ;povolit vystup signalu na pin (Output enable)
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-0030   009D           00112         movwf   ADCON0          ;nastav cteni z P1
+0023   1796           00087         bsf     PWM2CON,PWM2EN  ;spustit PWM1
+                      00088         
+                      00089         ;neprime adresovani
+0024   3006           00090         movlw   0x06       ; Adresa PWM3DH = 0x0612
+0025   0085           00091         movwf   FSR0H      
+0026   3018           00092         movlw   0x18
+0027   0084           00093         movwf   FSR0L      ; Control PWM3DCH ;ovlada vykon a svit
+0028   0020           00094         movlb   .0              ;Banka0 s PORT
+                      00095                         
+0029                  00096 Loop    ;Hlavni smycka 
+                      00097         ;Read P1 and P2 
+                      00098         ;Barva = Potenciometer 1
+0029   2???           00099         call    ReadP1  ;PRecte Potenciometr 1 a vysledek ulozi do prevP1_H a prevP1_L
+                      00100         ;call   MapToRGB ;Preved 10-bit vysledek ADC na 8-bit.
+002A   2???           00101         call    SetRGB  ;Nastav barvu dle rozsahu Potenciometru
+                      00102         
+                      00103         ;Jas = Potenciometer 2 
+002B   2???           00104         call    ReadP2
+002C   2???           00105         call    setBrightness;Nastav Jas dle hodnoty prevP2_H u zapnutých LED
+                      00106         
+002D   2???           00107         goto    Loop
+                      00108 
+002E                  00109 ReadP1
+                      00110         ;start ADC prevodniku
+                      00111         
+002E   0021           00112         movlb   .1              ;Banka1 s ADC
+002F   3019           00113         movlw   b'00011001'     ;P1 = AN6
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-0031   149D           00113         bsf     ADCON0,GO       ;start A/D prevodu
+0030   009D           00114         movwf   ADCON0          ;nastav cteni z P1
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-0032   189D           00114         btfsc   ADCON0,GO       ;A/D prevod skoncen?
-0033   2???           00115         goto    $-1             ;pokud ne, navrat o radek vyse
-                      00116         
-                      00117         ;10-bit binary result via successive approximation and stores the conversion result into the
-                      00118         ;ADC result registers (ADRESH:ADRESL register pair).
+0031   149D           00115         bsf     ADCON0,GO       ;start A/D prevodu
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-0034   081C           00119         movf    ADRESH,W
-0035   00F6           00120         movwf   prevP1_H ;uloz horních 8 bit? do prevP1_H
-                      00121         
+0032   189D           00116         btfsc   ADCON0,GO       ;A/D prevod skoncen?
+0033   2???           00117         goto    $-1             ;pokud ne, navrat o radek vyse
+                      00118         
+                      00119         ;10-bit binary result via successive approximation and stores the conversion result into the
+                      00120         ;ADC result registers (ADRESH:ADRESL register pair).
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-0036   081B           00122         movf    ADRESL,W
-0037   00F7           00123         movwf   prevP1_L ;uloz spodní 2 bity do prevP1_L
-                      00124         
-0038   0008           00125         return
-0039                  00126 ReadP2
-MPASM 5.87  /HOME/CYRILS/MPLABXPROJECTS/PIC_   2-7-2024  18:21:18         PAGE  4
+0034   081C           00121         movf    ADRESH,W
+0035   00F6           00122         movwf   prevP1_H ;uloz horních 8 bit? do prevP1_H
+                      00123         
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0036   081B           00124         movf    ADRESL,W
+0037   00F7           00125         movwf   prevP1_L ;uloz spodní 2 bity do prevP1_L
+                      00126         
+MPASM 5.87  /HOME/CYRILS/MPLABXPROJECTS/PIC_   2-8-2024  22:05:09         PAGE  4
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
   VALUE
 
-0039   0021           00127         movlb   .1              ;Banka1 s ADC
-003A   3029           00128         movlw    b'00101001'    ;P2 = AN10
+0038   0008           00127         return
+0039                  00128 ReadP2
+0039   0021           00129         movlb   .1              ;Banka1 s ADC
+003A   3029           00130         movlw    b'00101001'    ;P2 = AN10
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-003B   009D           00129         movwf   ADCON0
+003B   009D           00131         movwf   ADCON0
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-003C   149D           00130         bsf     ADCON0,GO       ;start A/D prevodu
+003C   149D           00132         bsf     ADCON0,GO       ;start A/D prevodu
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-003D   189D           00131         btfsc   ADCON0,GO       ;A/D prevod skoncen?
-003E   2???           00132         goto    $-1             ;pokud ne, navrat o radek vyse
-                      00133         
+003D   189D           00133         btfsc   ADCON0,GO       ;A/D prevod skoncen?
+003E   2???           00134         goto    $-1             ;pokud ne, navrat o radek vyse
+                      00135         
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-003F   081C           00134         movf    ADRESH,W
-0040   00F8           00135         movwf   prevP2_H
+003F   081C           00136         movf    ADRESH,W
+0040   00F8           00137         movwf   prevP2_H
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-0041   081C           00136         movf    ADRESH,W
-0042   00F9           00137         movwf   prevP2_L
-0043   0008           00138         return
-                      00139 
-0044                  00140 MapToRGB
-                      00141         ; 10bitovou hodnotu na 8bitovou (0-255) pro jednoduchost
-0044   0876           00142         movf    prevP1_H,W
-0045   00F0           00143         movwf   temp
-0046   0CF0           00144         rrf     temp,F
-0047   00F7           00145         movwf   prevP1_L
-0048   0870           00146         movf    temp,W
-0049   0CF0           00147         rrf     temp,F
-004A   00F6           00148         movwf   prevP1_H
-                      00149         ;8bitovou hodnotu je v prevP1_H a prevP1_L
-                      00150         
-004B   0008           00151         return
+0041   081C           00138         movf    ADRESH,W
+0042   00F9           00139         movwf   prevP2_L
+0043   0008           00140         return
+                      00141 
+0044                  00142 MapToRGB
+                      00143         ; 10bitovou hodnotu na 8bitovou (0-255) pro jednoduchost
+0044   0876           00144         movf    prevP1_H,W
+0045   00F0           00145         movwf   temp
+0046   0CF0           00146         rrf     temp,F
+0047   00F7           00147         movwf   prevP1_L
+0048   0870           00148         movf    temp,W
+0049   0CF0           00149         rrf     temp,F
+004A   00F6           00150         movwf   prevP1_H
+                      00151         ;8bitovou hodnotu je v prevP1_H a prevP1_L
                       00152         
-004C                  00153 SetRGB
-004C   002C           00154         movlb   .12 ;Banka 12 ss PWM
-                      00155         
-004D   0876           00156         movf    prevP1_H,W
-004E   00F0           00157         movwf   temp
-                      00158         
-                      00159         ; Rozd?lení hodnoty z potenciometru 1 na ctyri casti(256/4) = 64
-004F   3040           00160         movlw   .64
-0050   00F2           00161         movwf   range
-                      00162    
-0051   0876           00163         movf    prevP1_H,W
-0052   0272           00164         subwf   range,W
-0053   1803           00165         btfsc   STATUS,C
-0054   2???           00166         goto    Section1
-                      00167         
-                      00168         ;Green range
-0055   0876           00169         movf    prevP1_H,W
-0056   0772           00170         addwf   range,W
-0057   1C03           00171         btfss   STATUS,C
-0058   2???           00172         goto    Section2
-                      00173         
-                      00174         ;Blue range
-MPASM 5.87  /HOME/CYRILS/MPLABXPROJECTS/PIC_   2-7-2024  18:21:18         PAGE  5
+004B   0008           00153         return
+                      00154         
+004C                  00155 SetRGB
+004C   002C           00156         movlb   .12 ;Banka 12 ss PWM
+                      00157         
+004D   0876           00158         movf    prevP1_H,W
+004E   00F0           00159         movwf   temp
+                      00160         
+                      00161         ; Rozd?lení hodnoty z potenciometru 1 na ctyri casti(256/4) = 64
+004F   3040           00162         movlw   .64
+0050   00F2           00163         movwf   range
+                      00164    
+0051   0876           00165         movf    prevP1_H,W
+0052   0272           00166         subwf   range,W
+0053   1803           00167         btfsc   STATUS,C
+0054   2???           00168         goto    Section1
+                      00169         
+                      00170         ;Green range
+0055   0876           00171         movf    prevP1_H,W
+0056   0772           00172         addwf   range,W
+0057   1C03           00173         btfss   STATUS,C
+0058   2???           00174         goto    Section2
+MPASM 5.87  /HOME/CYRILS/MPLABXPROJECTS/PIC_   2-8-2024  22:05:09         PAGE  5
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
   VALUE
 
-0059   2???           00175         goto    Section3
-                      00176 
-005A                  00177 Section1
-                      00178         ;Turn on / off LED var
-005A   1074           00179         bcf     LED2_ON,0
-005B   1475           00180         bsf     LED3_ON,0;blue vypnuto
-005C   1073           00181         bcf     LED1_ON,0
-                      00182         
-005D   0870           00183         movf    temp,W
-005E   0272           00184         subwf   range,W
-                      00185         
-005F   00FA           00186         movwf   red
+                      00175         
+                      00176         ;Blue range
+0059   2???           00177         goto    Section3
+                      00178 
+005A                  00179 Section1
+                      00180         ;Turn on / off LED var
+005A   1073           00181         bcf     Section1_ON,0
+005B   1474           00182         bsf     Section2_ON,0
+005C   1475           00183         bsf     Section3_ON,0
+                      00184         
+005D   0876           00185         movf    prevP1_H,W ; Reset temp na p?vodní hodnotu
+005E   00F0           00186         movwf   temp
+                      00187         
+005F   0272           00188         subwf   range,W
+                      00189         
+0060   00FC           00190         movwf   red
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-0060   0092           00187         movwf   PWM1DCH
-                      00188         
-0061   0272           00189         subwf   range,W
-0062   00FB           00190         movwf   green
-Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-0063   0095           00191         movwf   PWM2DCH
+0061   0092           00191         movwf   PWM1DCH
                       00192         
-                      00193         ;Blue vypnuto
-0064   01FC           00194         clrf    blue
+0062   0272           00193         subwf   range,W
+0063   00FD           00194         movwf   green
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-0065   0198           00195         clrf    PWM3DCH
+0064   0095           00195         movwf   PWM2DCH
+                      00196         
+                      00197         ;Blue vypnuto
+0065   01FE           00198         clrf    blue
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-0066   0197           00196         clrf    PWM3DCL
-                      00197         
-0067   0008           00198         return
-                      00199         
-0068                  00200 Section2
-                      00201         ;Turn on / off LED var
-0068   1074           00202         bcf     LED2_ON,0
-0069   1075           00203         bcf     LED3_ON,0
-006A   1473           00204         bsf     LED1_ON,0
-006B   0870           00205         movf    temp,W
-006C   0272           00206         subwf   range,W
-                      00207         
-006D   3C54           00208         sublw   .84
-006E   00F1           00209         movwf   temp2 ; Ulo?ení do?asné hodnoty
-                      00210 
-                      00211         ; Lineární zvý?ení hodnoty blue
-006F   3054           00212         movlw   .84
-0070   0271           00213         subwf   temp2,W
-0071   00FC           00214         movwf   blue
+0066   0198           00199         clrf    PWM3DCH
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-0072   0098           00215         movwf   PWM3DCH
-                      00216         
-                      00217         ; Lineární sní?ení hodnoty green
-0073   0870           00218         movf    temp,W
-0074   3C40           00219         sublw   .64
-0075   00F0           00220         movwf   temp
-0076   3080           00221         movlw   .128
-0077   0270           00222         subwf   temp,W
-MPASM 5.87  /HOME/CYRILS/MPLABXPROJECTS/PIC_   2-7-2024  18:21:18         PAGE  6
+0067   0197           00200         clrf    PWM3DCL
+                      00201         
+0068   0008           00202         return
+                      00203         
+0069                  00204 Section2
+                      00205         ;Turn on / off LED var
+0069   1074           00206         bcf     Section2_ON,0
+006A   1473           00207         bsf     Section1_ON,0
+006B   1475           00208         bsf     Section3_ON,0
+                      00209         
+006C   0876           00210         movf    prevP1_H,W 
+006D   00F0           00211         movwf   temp
+006E   0272           00212         subwf   range,W
+                      00213         
+006F   3C54           00214         sublw   .84
+0070   00F1           00215         movwf   temp2 ; Ulo?ení do?asné hodnoty
+                      00216 
+                      00217         ; Lineární zvý?ení hodnoty blue
+0071   3054           00218         movlw   .84
+0072   0271           00219         subwf   temp2,W
+0073   00FE           00220         movwf   blue
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0074   0098           00221         movwf   PWM3DCH
+                      00222         
+MPASM 5.87  /HOME/CYRILS/MPLABXPROJECTS/PIC_   2-8-2024  22:05:09         PAGE  6
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
   VALUE
 
-0078   00FB           00223         movwf   green
+                      00223         ; Lineární sní?ení hodnoty green
+0075   0870           00224         movf    temp,W
+0076   3C40           00225         sublw   .64
+0077   00F0           00226         movwf   temp
+0078   3080           00227         movlw   .128
+0079   0270           00228         subwf   temp,W
+007A   00FD           00229         movwf   green
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-0079   0095           00224         movwf   PWM2DCH
-                      00225         
-                      00226         ;Red vypnutu
-007A   01FA           00227         clrf    red
+007B   0095           00230         movwf   PWM2DCH
+                      00231         
+                      00232         ;Red vypnutu
+007C   01FC           00233         clrf    red
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-007B   0192           00228         clrf    PWM1DCH
+007D   0192           00234         clrf    PWM1DCH
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-007C   0191           00229         clrf    PWM1DCL
-                      00230         
-007D   0008           00231         return
-007E                  00232 Section3
-                      00233         ;Turn on / off LED var
-007E   1474           00234         bsf     LED2_ON,0
-007F   1075           00235         bcf     LED3_ON,0
-0080   1073           00236         bcf     LED1_ON,0
-                      00237         ;Lineární zvyseni hodnoty red
-0081   0870           00238         movf    temp,W
-0082   3C55           00239         sublw   .85
-0083   0272           00240         subwf   range,W
-0084   30BE           00241         movlw   .190
-0085   0270           00242         subwf   temp,W
-0086   00FA           00243         movwf   red
+007E   0191           00235         clrf    PWM1DCL
+                      00236         
+007F   0008           00237         return
+0080                  00238 Section3
+                      00239         ;Turn on / off LED var
+0080   1075           00240         bcf     Section3_ON,0
+0081   1473           00241         bsf     Section1_ON,0
+0082   1474           00242         bsf     Section2_ON,0
+                      00243         
+                      00244         ;Lineární zvyseni hodnoty red
+0083   0876           00245         movf    prevP1_H,W 
+0084   00F0           00246         movwf   temp
+                      00247         
+0085   3C55           00248         sublw   .85
+0086   0272           00249         subwf   range,W
+0087   30BE           00250         movlw   .190
+0088   0270           00251         subwf   temp,W
+0089   00FC           00252         movwf   red
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-0087   0092           00244         movwf   PWM1DCH
-                      00245         
-                      00246         ; Lineární snizeni hodnoty blue
-0088   0870           00247         movf    temp,W
-0089   3C40           00248         sublw   .64
-008A   00F0           00249         movwf   temp
-008B   3C80           00250         sublw   .128
-008C   0270           00251         subwf   temp,W
-008D   00FC           00252         movwf   blue
+008A   0092           00253         movwf   PWM1DCH
+                      00254         
+                      00255         ; Lineární snizeni hodnoty blue
+008B   0870           00256         movf    temp,W
+008C   3C40           00257         sublw   .64
+008D   00F0           00258         movwf   temp
+008E   3C82           00259         sublw   .130
+008F   0270           00260         subwf   temp,W
+0090   00FE           00261         movwf   blue
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-008E   0098           00253         movwf   PWM3DCH
-                      00254         ;Green
-008F   01FB           00255         clrf    green
-Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-0090   0195           00256         clrf    PWM2DCH
-Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-0091   0194           00257         clrf    PWM2DCL
-0092   0008           00258         return
-                      00259 
-0093                  00260 setBrightness
-0093   002C           00261         movlb   .12 ;Banka 12 ss PWM
-0094   0878           00262         movf    prevP2_H,W ;Hornich 8 bit z P2
+0091   0098           00262         movwf   PWM3DCH
                       00263         
-0095   1C75           00264         btfss   LED3_ON,0;If LED3 is ON
+                      00264         ;Green
+0092   01FD           00265         clrf    green
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-0096   0098           00265         movwf   PWM3DCH; Write to PWM3DCH
-                      00266         ;incf   FSR0L, F ; Increment FSR0L
-                      00267         
-MPASM 5.87  /HOME/CYRILS/MPLABXPROJECTS/PIC_   2-7-2024  18:21:18         PAGE  7
+0093   0195           00266         clrf    PWM2DCH
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0094   0194           00267         clrf    PWM2DCL
+0095   0008           00268         return
+MPASM 5.87  /HOME/CYRILS/MPLABXPROJECTS/PIC_   2-8-2024  22:05:09         PAGE  7
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
   VALUE
 
-                      00268         ;opakuj pro ostatni PWM
-0097   1C74           00269         btfss   LED2_ON,0
-Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-0098   0095           00270         movwf   PWM2DCH
-                      00271         ;incf   FSR0L,F
-                      00272         
-0099   1C73           00273         btfss   LED1_ON,0
-Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-009A   0092           00274         movwf   PWM1DCH
-                      00275         ;incf   FSR0L,F
-009B   0008           00276         return
-                      00277         
+                      00269 
+0096                  00270 setBrightness
+0096   002C           00271         movlb   .12 ;Banka 12 ss PWM
+0097   0878           00272         movf    prevP2_H,W ;Hornich 8 bit z P2
+                      00273         
+                      00274         ;Vypocet procentualní hodnoty Jasu
+0098   3064           00275         movlw   .100    ;maximalni procentualni hodnota
+0099   00FA           00276         movwf   counter
+009A   01FB           00277         clrf    brightness
                       00278         
-                      00279    #include     "Config_IOs.inc"
-009C                  00001 Config_IOs      ;config BT1 RA4, BT2 RA5, P1 RC2 (AN6), P2 RB4 (AN10) and LED1-3 RC5 RC3 RA2
-009C   0022           00002         movlb   .2              ;Bank2
+009B                  00279 MultiplyLoop
+009B   07FB           00280         addwf   brightness,F ;Pridame hodnotu potenciometru 2 k procentualni hodnote
+009C   0BFA           00281         decfsz  counter,F ;Dekrementujeme pocitadlo, skip if zero
+009D   2???           00282         goto    MultiplyLoop ;Pokud pocitadlo neni nula, opakujeme cyklus
+                      00283         
+                      00284         ;Zvysovani jasu dle sekce v ktere se nachazime
+009E   1C73           00285         btfss   Section1_ON,0 ;Pokud je sepnuta nastav jas konrektnich barev
+009F   2???           00286         goto    Section1Br
+                      00287         
+00A0   1C74           00288         btfss   Section2_ON,0
+00A1   2???           00289         goto    Section2Br
+                      00290         
+00A2   1C75           00291         btfss   Section3_ON,0
+00A3   2???           00292         goto    Section3Br
+00A4   0008           00293         return
+                      00294         
+00A5                  00295 Section1Br
+                      00296          ; Check if LED2 is on
+00A5   087D           00297         movf    green,W
+00A6   1903           00298         btfsc   STATUS,Z    ;LED2 is off increase RED
+00A7   2???           00299         goto    IncreaseRedBr
+                      00300         
+                      00301         ; Green is on increase brightness
+00A8   0878           00302         movf    prevP2_H,W
+Message[305]: Using default destination of 1 (file).
+00A9   07FB           00303         addwf   brightness
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-009D   018C           00003         clrf    LATA
+00AA   0095           00304         movwf   PWM2DCH
+                      00305         
+00AB                  00306 IncreaseRedBr
+                      00307         ;Red is on decrease brightness
+00AB   0878           00308         movf    prevP2_H,W
+Message[305]: Using default destination of 1 (file).
+00AC   07FB           00309         addwf   brightness
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-009E   018D           00004         clrf    LATB
+00AD   0092           00310         movwf   PWM1DCH
+00AE   0008           00311         return
+                      00312         
+00AF                  00313 Section2Br
+                      00314         ; Check if LED3 is on
+00AF   087E           00315         movf    blue,W
+00B0   1903           00316         btfsc   STATUS,Z
+00B1   2???           00317         goto    IncreaseGreenB
+MPASM 5.87  /HOME/CYRILS/MPLABXPROJECTS/PIC_   2-8-2024  22:05:09         PAGE  8
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00318         
+00B2   0878           00319         movf    prevP2_H,W
+Message[305]: Using default destination of 1 (file).
+00B3   07FB           00320         addwf   brightness
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-009F   018E           00005         clrf    LATC
-00A0   0023           00006         movlb   .3              ;Bank3
-00A1   3000           00007         movlw   b'00000000'
+00B4   0098           00321         movwf   PWM3DCH
+                      00322         
+00B5                  00323 IncreaseGreenB
+00B5   0878           00324         movf    prevP2_H,W
+Message[305]: Using default destination of 1 (file).
+00B6   07FB           00325         addwf   brightness
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-00A2   008C           00008         movwf   ANSELA          ;digital IO
-00A3   3010           00009         movlw   b'00010000'
+00B7   0095           00326         movwf   PWM2DCH
+00B8   0008           00327         return
+                      00328         
+00B9                  00329 Section3Br
+                      00330         ;Check if LED3 is on
+00B9   087E           00331         movf    blue,W
+00BA   1903           00332         btfsc   STATUS,Z
+00BB   2???           00333         goto    IncreaseRedBr
+                      00334         
+00BC   0878           00335         movf    prevP2_H,W
+Message[305]: Using default destination of 1 (file).
+00BD   02FB           00336         subwf   brightness
+Message[305]: Using default destination of 1 (file).
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-00A4   008D           00010         movwf   ANSELB          ;digital IO, except RB4
-00A5   3004           00011         movlw   b'00000100'
+00BE   0798           00337         addwf   PWM3DCH
+                      00338         
+00BF   0008           00339         return
+                      00340    #include     "Config_IOs.inc"
+00C0                  00001 Config_IOs      ;config BT1 RA4, BT2 RA5, P1 RC2 (AN6), P2 RB4 (AN10) and LED1-3 RC5 RC3 RA2
+00C0   0022           00002         movlb   .2              ;Bank2
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-00A6   008E           00012         movwf   ANSELC          ;digital IO, except RC2
-00A7   0021           00013         movlb   .1              ;Bank1
-00A8   30FB           00014         movlw   b'11111011'
+00C1   018C           00003         clrf    LATA
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-00A9   008C           00015         movwf   TRISA
-00AA   303F           00016         movlw   b'00111111'
+00C2   018D           00004         clrf    LATB
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-00AB   008D           00017         movwf   TRISB
-00AC   3015           00018         movlw   b'00010101'
+00C3   018E           00005         clrf    LATC
+00C4   0023           00006         movlb   .3              ;Bank3
+00C5   3000           00007         movlw   b'00000000'
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-00AD   008E           00019         movwf   TRISC
-00AE   0008           00020         return
+00C6   008C           00008         movwf   ANSELA          ;digital IO
+00C7   3010           00009         movlw   b'00010000'
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+00C8   008D           00010         movwf   ANSELB          ;digital IO, except RB4
+00C9   3004           00011         movlw   b'00000100'
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+00CA   008E           00012         movwf   ANSELC          ;digital IO, except RC2
+00CB   0021           00013         movlb   .1              ;Bank1
+00CC   30FB           00014         movlw   b'11111011'
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+00CD   008C           00015         movwf   TRISA
+00CE   303F           00016         movlw   b'00111111'
+MPASM 5.87  /HOME/CYRILS/MPLABXPROJECTS/PIC_   2-8-2024  22:05:09         PAGE  9
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+00CF   008D           00017         movwf   TRISB
+00D0   3015           00018         movlw   b'00010101'
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+00D1   008E           00019         movwf   TRISC
+00D2   0008           00020         return
                       00021 
                       00022 
                       00023         
@@ -408,9 +489,9 @@ Message[302]: Register in operand not in bank 0.  Ensure that bank bits are corr
                       00025         
                       00026         
                       00027         
-                      00280                 
-09E4 3FFF             00281         END
-MPASM 5.87  /HOME/CYRILS/MPLABXPROJECTS/PIC_   2-7-2024  18:21:18         PAGE  8
+                      00341                 
+09E4 3FFF             00342         END
+MPASM 5.87  /HOME/CYRILS/MPLABXPROJECTS/PIC_   2-8-2024  22:05:09         PAGE 10
 
 
 SYMBOL TABLE
@@ -469,7 +550,7 @@ BKA14                             00000006
 BKA2                              00000002
 BKA3                              00000003
 BKA4                              00000004
-MPASM 5.87  /HOME/CYRILS/MPLABXPROJECTS/PIC_   2-7-2024  18:21:18         PAGE  9
+MPASM 5.87  /HOME/CYRILS/MPLABXPROJECTS/PIC_   2-8-2024  22:05:09         PAGE 11
 
 
 SYMBOL TABLE
@@ -528,7 +609,7 @@ C2PCH0                            00000004
 C2PCH1                            00000005
 C2POL                             00000004
 C2SP                              00000002
-MPASM 5.87  /HOME/CYRILS/MPLABXPROJECTS/PIC_   2-7-2024  18:21:18         PAGE 10
+MPASM 5.87  /HOME/CYRILS/MPLABXPROJECTS/PIC_   2-8-2024  22:05:09         PAGE 12
 
 
 SYMBOL TABLE
@@ -587,7 +668,7 @@ CLC4POL                           00000F29
 CLC4SEL0                          00000F2A
 CLC4SEL1                          00000F2B
 CLCDATA                           00000F0F
-MPASM 5.87  /HOME/CYRILS/MPLABXPROJECTS/PIC_   2-7-2024  18:21:18         PAGE 11
+MPASM 5.87  /HOME/CYRILS/MPLABXPROJECTS/PIC_   2-8-2024  22:05:09         PAGE 13
 
 
 SYMBOL TABLE
@@ -618,7 +699,7 @@ CWG1DBR3                          00000003
 CWG1DBR4                          00000004
 CWG1DBR5                          00000005
 C_SHAD                            00000000
-Config_IOs                        0000009C
+Config_IOs                        000000C0
 D1N                               00000000
 D1S0                              00000000
 D1S1                              00000001
@@ -646,7 +727,7 @@ DACOE1                            00000005
 DACOE2                            00000004
 DACPSS                            00000002
 DACR0                             00000000
-MPASM 5.87  /HOME/CYRILS/MPLABXPROJECTS/PIC_   2-7-2024  18:21:18         PAGE 12
+MPASM 5.87  /HOME/CYRILS/MPLABXPROJECTS/PIC_   2-8-2024  22:05:09         PAGE 14
 
 
 SYMBOL TABLE
@@ -705,7 +786,7 @@ G1ASDSC1                          00000002
 G1ASDSC2                          00000003
 G1ASDSCLC2                        00000000
 G1ASDSFLT                         00000001
-MPASM 5.87  /HOME/CYRILS/MPLABXPROJECTS/PIC_   2-7-2024  18:21:18         PAGE 13
+MPASM 5.87  /HOME/CYRILS/MPLABXPROJECTS/PIC_   2-8-2024  22:05:09         PAGE 15
 
 
 SYMBOL TABLE
@@ -764,7 +845,7 @@ IOCAF5                            00000005
 IOCAN                             00000392
 IOCAN0                            00000000
 IOCAN1                            00000001
-MPASM 5.87  /HOME/CYRILS/MPLABXPROJECTS/PIC_   2-7-2024  18:21:18         PAGE 14
+MPASM 5.87  /HOME/CYRILS/MPLABXPROJECTS/PIC_   2-8-2024  22:05:09         PAGE 16
 
 
 SYMBOL TABLE
@@ -802,6 +883,8 @@ IRCF0                             00000003
 IRCF1                             00000004
 IRCF2                             00000005
 IRCF3                             00000006
+IncreaseGreenB                    000000B5
+IncreaseRedBr                     000000AB
 LATA                              0000010C
 LATA0                             00000000
 LATA1                             00000001
@@ -821,14 +904,14 @@ LATC3                             00000003
 LATC4                             00000004
 LATC5                             00000005
 LATC6                             00000006
-LATC7                             00000007
-LAT_ICDCLK                        00000004
-MPASM 5.87  /HOME/CYRILS/MPLABXPROJECTS/PIC_   2-7-2024  18:21:18         PAGE 15
+MPASM 5.87  /HOME/CYRILS/MPLABXPROJECTS/PIC_   2-8-2024  22:05:09         PAGE 17
 
 
 SYMBOL TABLE
   LABEL                             VALUE 
 
+LATC7                             00000007
+LAT_ICDCLK                        00000004
 LAT_ICDDAT                        00000005
 LC1D1S0                           00000000
 LC1D1S1                           00000001
@@ -880,14 +963,14 @@ LC1G4D4N                          00000006
 LC1G4D4T                          00000007
 LC1G4POL                          00000003
 LC1INTN                           00000003
-LC1INTP                           00000004
-LC1MODE0                          00000000
-MPASM 5.87  /HOME/CYRILS/MPLABXPROJECTS/PIC_   2-7-2024  18:21:18         PAGE 16
+MPASM 5.87  /HOME/CYRILS/MPLABXPROJECTS/PIC_   2-8-2024  22:05:09         PAGE 18
 
 
 SYMBOL TABLE
   LABEL                             VALUE 
 
+LC1INTP                           00000004
+LC1MODE0                          00000000
 LC1MODE1                          00000001
 LC1MODE2                          00000002
 LC1OE                             00000006
@@ -939,14 +1022,14 @@ LC2G4D2N                          00000002
 LC2G4D2T                          00000003
 LC2G4D3N                          00000004
 LC2G4D3T                          00000005
-LC2G4D4N                          00000006
-LC2G4D4T                          00000007
-MPASM 5.87  /HOME/CYRILS/MPLABXPROJECTS/PIC_   2-7-2024  18:21:18         PAGE 17
+MPASM 5.87  /HOME/CYRILS/MPLABXPROJECTS/PIC_   2-8-2024  22:05:09         PAGE 19
 
 
 SYMBOL TABLE
   LABEL                             VALUE 
 
+LC2G4D4N                          00000006
+LC2G4D4T                          00000007
 LC2G4POL                          00000003
 LC2INTN                           00000003
 LC2INTP                           00000004
@@ -998,14 +1081,14 @@ LC3G3D4T                          00000007
 LC3G3POL                          00000002
 LC3G4D1N                          00000000
 LC3G4D1T                          00000001
-LC3G4D2N                          00000002
-LC3G4D2T                          00000003
-MPASM 5.87  /HOME/CYRILS/MPLABXPROJECTS/PIC_   2-7-2024  18:21:18         PAGE 18
+MPASM 5.87  /HOME/CYRILS/MPLABXPROJECTS/PIC_   2-8-2024  22:05:09         PAGE 20
 
 
 SYMBOL TABLE
   LABEL                             VALUE 
 
+LC3G4D2N                          00000002
+LC3G4D2T                          00000003
 LC3G4D3N                          00000004
 LC3G4D3T                          00000005
 LC3G4D4N                          00000006
@@ -1057,14 +1140,14 @@ LC4G3D2T                          00000003
 LC4G3D3N                          00000004
 LC4G3D3T                          00000005
 LC4G3D4N                          00000006
-LC4G3D4T                          00000007
-LC4G3POL                          00000002
-MPASM 5.87  /HOME/CYRILS/MPLABXPROJECTS/PIC_   2-7-2024  18:21:18         PAGE 19
+MPASM 5.87  /HOME/CYRILS/MPLABXPROJECTS/PIC_   2-8-2024  22:05:09         PAGE 21
 
 
 SYMBOL TABLE
   LABEL                             VALUE 
 
+LC4G3D4T                          00000007
+LC4G3POL                          00000002
 LC4G4D1N                          00000000
 LC4G4D1T                          00000001
 LC4G4D2N                          00000002
@@ -1091,11 +1174,8 @@ LCMODE2                           00000002
 LCOE                              00000006
 LCOUT                             00000005
 LED1                              PWM1DCH
-LED1_ON                           00000073
 LED2                              PWM2DCH
-LED2_ON                           00000074
 LED3                              PWM3DCH
-LED3_ON                           00000075
 LFIOFR                            00000001
 LWLO                              00000005
 Loop                              00000029
@@ -1106,6 +1186,7 @@ MCLC2OUT                          00000001
 MCLC3OUT                          00000002
 MCLC4OUT                          00000003
 MapToRGB                          00000044
+MultiplyLoop                      0000009B
 N1CKS0                            00000000
 N1CKS1                            00000001
 N1EN                              00000007
@@ -1118,7 +1199,7 @@ N1PWS1                            00000006
 N1PWS2                            00000007
 NCO1ACC                           00000498
 NCO1ACC0                          00000000
-MPASM 5.87  /HOME/CYRILS/MPLABXPROJECTS/PIC_   2-7-2024  18:21:18         PAGE 20
+MPASM 5.87  /HOME/CYRILS/MPLABXPROJECTS/PIC_   2-8-2024  22:05:09         PAGE 22
 
 
 SYMBOL TABLE
@@ -1177,7 +1258,7 @@ NOT_PD                            00000003
 NOT_POR                           00000001
 NOT_RI                            00000002
 NOT_RMCLR                         00000003
-MPASM 5.87  /HOME/CYRILS/MPLABXPROJECTS/PIC_   2-7-2024  18:21:18         PAGE 21
+MPASM 5.87  /HOME/CYRILS/MPLABXPROJECTS/PIC_   2-8-2024  22:05:09         PAGE 23
 
 
 SYMBOL TABLE
@@ -1236,7 +1317,7 @@ PWM1DCH2                          00000002
 PWM1DCH3                          00000003
 PWM1DCH4                          00000004
 PWM1DCH5                          00000005
-MPASM 5.87  /HOME/CYRILS/MPLABXPROJECTS/PIC_   2-7-2024  18:21:18         PAGE 22
+MPASM 5.87  /HOME/CYRILS/MPLABXPROJECTS/PIC_   2-8-2024  22:05:09         PAGE 24
 
 
 SYMBOL TABLE
@@ -1295,7 +1376,7 @@ PWM4DCH1                          00000001
 PWM4DCH2                          00000002
 PWM4DCH3                          00000003
 PWM4DCH4                          00000004
-MPASM 5.87  /HOME/CYRILS/MPLABXPROJECTS/PIC_   2-7-2024  18:21:18         PAGE 23
+MPASM 5.87  /HOME/CYRILS/MPLABXPROJECTS/PIC_   2-8-2024  22:05:09         PAGE 25
 
 
 SYMBOL TABLE
@@ -1354,7 +1435,7 @@ SCS1                              00000001
 SDAHT                             00000003
 SEN                               00000000
 SENDB                             00000003
-MPASM 5.87  /HOME/CYRILS/MPLABXPROJECTS/PIC_   2-7-2024  18:21:18         PAGE 24
+MPASM 5.87  /HOME/CYRILS/MPLABXPROJECTS/PIC_   2-8-2024  22:05:09         PAGE 26
 
 
 SYMBOL TABLE
@@ -1400,25 +1481,31 @@ STKUNF                            00000006
 SWDTEN                            00000000
 SYNC                              00000004
 Section1                          0000005A
-Section2                          00000068
-Section3                          0000007E
+Section1Br                        000000A5
+Section1_ON                       00000073
+Section2                          00000069
+Section2Br                        000000AF
+Section2_ON                       00000074
+Section3                          00000080
+Section3Br                        000000B9
+Section3_ON                       00000075
 SetRGB                            0000004C
 Start                             00000006
 T0CS                              00000005
 T0IE                              00000005
 T0IF                              00000002
+MPASM 5.87  /HOME/CYRILS/MPLABXPROJECTS/PIC_   2-8-2024  22:05:09         PAGE 27
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
 T0SE                              00000004
 T1CKPS0                           00000004
 T1CKPS1                           00000005
 T1CON                             00000018
 T1GCON                            00000019
 T1GGO_NOT_DONE                    00000003
-MPASM 5.87  /HOME/CYRILS/MPLABXPROJECTS/PIC_   2-7-2024  18:21:18         PAGE 25
-
-
-SYMBOL TABLE
-  LABEL                             VALUE 
-
 T1GPOL                            00000006
 T1GSEL                            00000003
 T1GSPM                            00000004
@@ -1466,18 +1553,18 @@ TRISA1                            00000001
 TRISA2                            00000002
 TRISA3                            00000003
 TRISA4                            00000004
+MPASM 5.87  /HOME/CYRILS/MPLABXPROJECTS/PIC_   2-8-2024  22:05:09         PAGE 28
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
 TRISA5                            00000005
 TRISB                             0000008D
 TRISB4                            00000004
 TRISB5                            00000005
 TRISB6                            00000006
 TRISB7                            00000007
-MPASM 5.87  /HOME/CYRILS/MPLABXPROJECTS/PIC_   2-7-2024  18:21:18         PAGE 26
-
-
-SYMBOL TABLE
-  LABEL                             VALUE 
-
 TRISC                             0000008E
 TRISC0                            00000000
 TRISC1                            00000001
@@ -1525,18 +1612,18 @@ WPUB4                             00000004
 WPUB5                             00000005
 WPUB6                             00000006
 WPUB7                             00000007
+MPASM 5.87  /HOME/CYRILS/MPLABXPROJECTS/PIC_   2-8-2024  22:05:09         PAGE 29
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
 WR                                00000001
 WREG                              00000009
 WREG_SHAD                         00000FE5
 WREN                              00000002
 WRERR                             00000003
 WUE                               00000001
-MPASM 5.87  /HOME/CYRILS/MPLABXPROJECTS/PIC_   2-7-2024  18:21:18         PAGE 27
-
-
-SYMBOL TABLE
-  LABEL                             VALUE 
-
 Z                                 00000002
 Z_SHAD                            00000002
 _.org_1_0033                      00000033
@@ -1584,31 +1671,33 @@ _WDTE_NSLEEP                      00003FF7
 _WDTE_OFF                         00003FE7
 _WDTE_ON                          00003FFF
 _WDTE_SWDTEN                      00003FEF
-_WRT_ALL                          00003FFC
-_WRT_BOOT                         00003FFE
-_WRT_HALF                         00003FFD
-_WRT_OFF                          00003FFF
-__16F1508                         00000001
-blue                              0000007C
-MPASM 5.87  /HOME/CYRILS/MPLABXPROJECTS/PIC_   2-7-2024  18:21:18         PAGE 28
+MPASM 5.87  /HOME/CYRILS/MPLABXPROJECTS/PIC_   2-8-2024  22:05:09         PAGE 30
 
 
 SYMBOL TABLE
   LABEL                             VALUE 
 
-green                             0000007B
+_WRT_ALL                          00003FFC
+_WRT_BOOT                         00003FFE
+_WRT_HALF                         00003FFD
+_WRT_OFF                          00003FFF
+__16F1508                         00000001
+blue                              0000007E
+brightness                        0000007B
+counter                           0000007A
+green                             0000007D
 prevP1_H                          00000076
 prevP1_L                          00000077
 prevP2_H                          00000078
 prevP2_L                          00000079
 range                             00000072
-red                               0000007A
-setBrightness                     00000093
+red                               0000007C
+setBrightness                     00000096
 temp                              00000070
 temp2                             00000071
 
 Errors   :     0
 Warnings :     0 reported,     0 suppressed
-Messages :    51 reported,     0 suppressed
+Messages :    59 reported,     0 suppressed
 
 

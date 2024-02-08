@@ -9,8 +9,6 @@
     __CONFIG _CONFIG2, _WRT_OFF & _STVREN_ON & _BORV_LO & _LPBOR_OFF & _LVP_ON
 
 
-
-
 ;VARIABLE DEFINITIONS
 ;COMMON RAM 0x70 to 0x7F
     CBLOCK	0x70
@@ -58,4 +56,5 @@ Main	;hlavni smycka...
 		
 		
 		
+
 

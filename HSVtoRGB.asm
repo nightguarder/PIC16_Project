@@ -2,7 +2,7 @@
 ;Zaklad pro psani vlastnich programu
     list	p=16F1508
     #include    "p16f1508.inc"
-
+    
 
     
     __CONFIG _CONFIG1, _FOSC_INTOSC & _WDTE_OFF & _PWRTE_OFF & _MCLRE_ON & _CP_OFF & _BOREN_OFF & _CLKOUTEN_OFF & _IESO_OFF & _FCMEN_OFF
@@ -20,9 +20,10 @@
 	HRange
 	LoopCount
 	OverflowCount
+	Counter
 	R1
-	R
 	G1
+	A
 	B1
     ENDC
     
@@ -103,7 +104,7 @@ Loop
 	;Color
 	movf	prevP1,W
 	call	HSVtoRGB
-
+	
         goto    Loop	;main loop
 
 ReadP1
@@ -153,46 +154,124 @@ HSVtoRGB
 
 	clrf OverflowCount ; Vynulovat pocítadlo pretecení
 	clrf X ; Vynulovat X
+	clrf	Counter
 
 	movlw .6 ; sestkrát pricist W k X
 	movwf LoopCount
+	
 AddLoop
-	addwf X, F
-	btfsc STATUS, C ; Check for overflow
-	incf OverflowCount, F ; Increment overflow counter if overflow occurs
-	decfsz LoopCount, F ; Decrement loop counter, skip if zero
-	goto AddLoop ; Repeat loop if loop counter is not zero
 	
-	movf OverflowCount, W
-	andlw b'00000001' ; Take only the least significant bit
-	movwf HRange
+	; Assume S=1, C=V, m=0
+    ; prevP1 = H (0-360), prevP2 = V (0-255)
 
-	movf X, W
-	btfsc HRange, 0
-	sublw 0xFF ; If HRange is 1, then X = 255 - X
-	movwf X
+    ; Convert H from 0-360 to 0-6
+    movf    prevP1,W
+    ;divlw   60
+    movlw .6
+    movwf   H
+    
+    ; Calculate X = C * (1 - |(H mod 2) - 1|)
+    movf    H,W
+    andlw   .1
+    sublw   .1
+    btfsc   STATUS,C
+    comf    WREG,0
+    movwf   A
+    movf    prevP2,W
+    movwf   B1
+    call    Multiply
+    movf    B1,W
+    movwf   X
+Multiply
+    clrf    B1       ; clear B1 (B1 will hold the high byte of the result)
+    movlw   .8       ; repeat the loop 8 times
+    movwf   Counter
+MultiplyLoop
+    btfsc   A,0     ; if the least significant bit of A is 1...
+    addwf   B1,F     ; ...then add A to B1
+    bcf	STATUS,C
+    rlf     A,F     ; shift A left (multiply by 2), moving bit 0 to the Carry
+    rlf     B1,F     ; rotate B1 left (multiply by 2), moving the Carry to bit 0
+    decfsz  Counter ; decrement the counter and skip the next instruction if it's 0
+    goto    MultiplyLoop
+    return
 
-	movf prevP1, W ; V = prevP2
-	movf X, W ; Result is stored in PRODH:PRODL
+    
+    ; Calculate RGB values based on H
+    movf    H,W
+    addlw   -0
+    btfsc   STATUS,Z
+    goto    Case0
+    addlw   -1
+    btfsc   STATUS,Z
+    goto    Case1
+    addlw   -1
+    btfsc   STATUS,Z
+    goto    Case2
+    addlw   -1
+    btfsc   STATUS,Z
+    goto    Case3
+    addlw   -1
+    btfsc   STATUS,Z
+    goto    Case4
+    addlw   -1
+    btfsc   STATUS,Z
+    goto    Case5
+    
+Case0
+    ; R=C, G=X, B=0
+    movf    prevP1,W
+    movwf   PWM1DCH ; R
+    movf    X,W
+    movwf   PWM2DCH ; G
+    clrf    PWM3DCH ; B
+    return
 
-	; Calculate (R1, G1, B1) based on H range
-	movf HRange, W
-	addlw .6 ; Add 6 to W
-	movwf LoopCount
+Case1
+    ; R=X, G=C, B=0
+    movf    X,W
+    movwf   PWM1DCH ; R
+    movf    prevP2,W
+    movwf   PWM2DCH ; G
+    clrf    PWM3DCH ; B
+    return
 
-	; Calculate (R, G, B) by adding m to (R1, G1, B1)
-	btfsc   STATUS,Z
-	movf prevP1, W ; V = prevP2
-	subwf R1, W
-	movwf PWM1DCH ; Store into PWM1DCH
-	
-	btfsc   STATUS,Z
-	subwf G1, W
-	movwf PWM2DCH ; Store into PWM2DCH
-	
-	btfsc   STATUS,Z
-	subwf B1, W
-	movwf PWM3DCH ; Store into PWM3DCH
+Case2
+    ; R=0, G=C, B=X
+    clrf    PWM1DCH ; R
+    movf    prevP2,W
+    movwf   PWM2DCH ; G
+    movf    X,W
+    movwf   PWM3DCH ; B
+    return
+
+Case3
+    ; R=0, G=X, B=C
+    clrf    PWM1DCH ; R
+    movf    X,W
+    movwf   PWM2DCH ; G
+    movf    prevP2,W
+    movwf   PWM3DCH ; B
+    return
+
+Case4
+    ; R=X, G=0, B=C
+    movf    X,W
+    movwf   PWM1DCH ; R
+    clrf    PWM2DCH ; G
+    movf    prevP2,W
+    movwf   PWM3DCH ; B
+    return
+
+Case5
+    ; R=C, G=0, B=X
+    movf    prevP2,W
+    movwf   PWM1DCH ; R
+    clrf    PWM2DCH ; G
+    movf    X,W
+    movwf   PWM3DCH ; B
+    return    
+	return
 	
 Delay100			;zpozdeni 100 ms
         movlw   .100
