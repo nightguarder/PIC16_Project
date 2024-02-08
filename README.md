@@ -309,6 +309,8 @@ setBrightness
 ```
 ## Images
 
-- Working solution...
+*Changing the color with P1*
 ![Color](img/IMG_0286.png)
+
+*Changing the color brightness with P2*
 ![Brightness](img/IMG_0287.png)
