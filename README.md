@@ -3,6 +3,9 @@
 - Cílem předmětu je se seznámit s současným stavem počítačové architektury na různých úrovních abstrakce.
 - Náplň svičení jsou Principy programování ve strojovém kódu, instrukční soubor mikrořadičů PIC a jednotlivé úlohy na programování paměti a periferií.
 
+# PIC16F1508 Microchip
+![Microchip](img/IMG_0285.png)
+
 ### Documentation
 - [Datasheet](https://ww1.microchip.com/downloads/en/DeviceDoc/40001609E.pdf)
 - [Instruction set](docs/Podklady-PIC16-1.pdf)
@@ -304,3 +307,8 @@ setBrightness
 
 
 ```
+## Images
+
+- Working solution...
+![Color](img/IMG_0286.png)
+![Brightness](img/IMG_0287.png)
