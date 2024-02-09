@@ -28,7 +28,6 @@
 	prevP2_H
 	prevP2_L
 	counter
-	brightness
 	red
 	green
 	blue
@@ -189,15 +188,18 @@ Section1
 	
 	movwf	red
 	movwf	PWM1DCH
+	movwf	red ;Ulozit hodnotu pro Red
 	
 	subwf	range,W
 	movwf	green
 	movwf	PWM2DCH
+	movwf	green
 	
 	;Blue vypnuto
 	clrf	blue
 	clrf	PWM3DCH
 	clrf	PWM3DCL
+	clrf	blue
 	
 	return
 	
@@ -219,6 +221,7 @@ Section2
 	subwf	temp2,W
 	movwf	blue
 	movwf	PWM3DCH
+	movwf	blue
 	
 	; Lineární sní?ení hodnoty green
 	movf	temp,W
@@ -228,6 +231,7 @@ Section2
 	subwf	temp,W
 	movwf	green
 	movwf	PWM2DCH
+	movwf	green
 	
 	;Red vypnutu
 	clrf	red
@@ -251,6 +255,7 @@ Section3
 	subwf	temp,W
 	movwf	red
 	movwf	PWM1DCH
+	movwf	red
 	
 	; Lineární snizeni hodnoty blue
 	movf	temp,W
@@ -260,6 +265,7 @@ Section3
 	subwf	temp,W
 	movwf	blue
 	movwf	PWM3DCH
+	movwf	blue
 	
 	;Green
 	clrf	green
@@ -270,16 +276,6 @@ Section3
 setBrightness
 	movlb	.12 ;Banka 12 ss PWM
 	movf	prevP2_H,W ;Hornich 8 bit z P2
-	
-	;Vypocet procentualní hodnoty Jasu
-	movlw	.100	;maximalni procentualni hodnota
-	movwf	counter
-	clrf	brightness
-	
-MultiplyLoop
-	addwf	brightness,F ;Pridame hodnotu potenciometru 2 k procentualni hodnote
-	decfsz	counter,F ;Dekrementujeme pocitadlo, skip if zero
-	goto	MultiplyLoop ;Pokud pocitadlo neni nula, opakujeme cyklus
 	
 	;Zvysovani jasu dle sekce v ktere se nachazime
 	btfss	Section1_ON,0 ;Pokud je sepnuta nastav jas konrektnich barev
@@ -296,33 +292,45 @@ Section1Br
 	 ; Check if LED2 is on
 	movf    green,W
 	btfsc   STATUS,Z    ;LED2 is off increase RED
-	goto	IncreaseRedBr
+	goto	DecreaseRedBr
 	
 	; Green is on increase brightness
 	movf	prevP2_H,W
-	addwf	brightness
+	addwf	green,W
+	btfsc	STATUS,C    ;Overflow check
+	movlw	.255
+	movwf	green
 	movwf	PWM2DCH
 	
-IncreaseRedBr
+DecreaseRedBr
 	;Red is on decrease brightness
 	movf	prevP2_H,W
-	addwf	brightness
+	subwf	red,W
+	btfsc	STATUS,C    ;Overflow check
+	movlw	.255
+	movwf	red
 	movwf	PWM1DCH
 	return
 	
 Section2Br
 	; Check if LED3 is on
 	movf	blue,W
-	btfsc	STATUS,Z
+	btfsc	STATUS,Z    ;LED3 is off increase green
 	goto	IncreaseGreenB
 	
 	movf	prevP2_H,W
-	addwf	brightness
+	addwf	blue,W
+	btfsc	STATUS,C    ;Overflow check
+	movlw	.255
+	movwf	blue
 	movwf	PWM3DCH
 	
 IncreaseGreenB
 	movf	prevP2_H,W
-	addwf	brightness
+	subwf	green,W
+	btfsc	STATUS,C    ;Overflow check
+	movlw	.255
+	movwf	green
 	movwf	PWM2DCH
 	return
 	
@@ -333,9 +341,19 @@ Section3Br
 	goto	IncreaseRedBr
 	
 	movf	prevP2_H,W
-	subwf	brightness
-	addwf	PWM3DCH
-	
+	addwf	blue,W
+	btfsc	STATUS,C    ;Overflow check
+	movlw	.255
+	movwf	blue
+	movwf	PWM3DCH
+IncreaseRedBr	
+	;Red is on increase brightness
+	movf	prevP2_H,W
+	addwf	red,W
+	btfsc	STATUS,C    ;Overflow check
+	movlw	.255
+	movwf	red
+	movwf	PWM1DCH
 	return
    #include	"Config_IOs.inc"
 		
